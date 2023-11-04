@@ -2,7 +2,7 @@ import React from 'react';
 import TodoList from './TodoList';
 import AddTodoForm from './AddTodoForm';
 
-const todoList = [
+const initialTodos = [
   {
     id: '1',
     title: 'Complete lesson 1.2 React',
@@ -20,8 +20,13 @@ const todoList = [
   },
 ];
 
-function App(props) {
-  const [newTodo, setNewTodo] = React.useState('');
+function App() {
+  const [todoList, setTodoList] = React.useState(initialTodos);
+
+  const addTodo = (newTodo) => {
+    setTodoList([newTodo, ...todoList]);
+  };
+
   return (
     <div>
       <header style={{ textAlign: 'center' }}>
@@ -29,13 +34,11 @@ function App(props) {
       </header>
 
       <hr />
-
-      <AddTodoForm onAddTodo={setNewTodo} />
-      <p>{newTodo}</p>
+      <AddTodoForm onAddTodo={addTodo} />
 
       <hr />
 
-      <TodoList todo={todoList} />
+      <TodoList todoList={todoList} />
     </div>
   );
 }
