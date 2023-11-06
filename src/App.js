@@ -20,15 +20,28 @@ const initialTodos = [
   },
 ];
 
+const useSemiPersistentState = () => {
+  const [todoList, setTodoList] = React.useState(
+    JSON.parse(localStorage.getItem('savedTodoList')) || initialTodos
+  );
+
+  React.useEffect(() => {
+    const savedTodoList = JSON.stringify(todoList);
+    localStorage.setItem('savedTodoList', savedTodoList);
+  }, [todoList]);
+
+  return [todoList, setTodoList];
+};
+
 function App() {
-  const [todoList, setTodoList] = React.useState(initialTodos);
+  const [todoList, setTodoList] = useSemiPersistentState();
 
   const addTodo = (newTodo) => {
     setTodoList([newTodo, ...todoList]);
   };
 
   return (
-    <div>
+    <>
       <header style={{ textAlign: 'center' }}>
         <h1>Todo List</h1>
       </header>
@@ -39,7 +52,7 @@ function App() {
       <hr />
 
       <TodoList todoList={todoList} />
-    </div>
+    </>
   );
 }
 
