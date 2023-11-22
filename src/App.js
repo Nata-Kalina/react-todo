@@ -40,6 +40,11 @@ function App() {
     setTodoList([...todoList, newTodo]);
   };
 
+  const removeTodo = (item) => {
+    const newTodo = todoList.filter((todo) => item.id !== todo.id);
+    setTodoList(newTodo);
+  };
+
   return (
     <>
       <header style={{ textAlign: 'center' }}>
@@ -51,7 +56,7 @@ function App() {
 
       <hr />
 
-      <TodoList todoList={todoList} />
+      <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
     </>
   );
 }
