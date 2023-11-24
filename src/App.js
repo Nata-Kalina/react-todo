@@ -20,21 +20,41 @@ const initialTodos = [
   },
 ];
 
-const useSemiPersistentState = () => {
+function App() {
+  //const [todoList, setTodoList] = useSemiPersistentState();
+
   const [todoList, setTodoList] = React.useState(
     JSON.parse(localStorage.getItem('savedTodoList')) || initialTodos
   );
 
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const getTodoList = () =>
+    new Promise((resolve, reject) =>
+      setTimeout(
+        () =>
+          resolve({
+            data: { todoList: initialTodos },
+          }),
+        2000
+      )
+    );
+
+  React.useEffect(() => {
+    getTodoList().then((result) => {
+      setTodoList(result.data.todoList);
+      setIsLoading(false);
+    });
+  }, []);
+
   React.useEffect(() => {
     const savedTodoList = JSON.stringify(todoList);
-    localStorage.setItem('savedTodoList', savedTodoList);
+    if (isLoading == false) {
+      localStorage.setItem('savedTodoList', savedTodoList);
+    }
   }, [todoList]);
 
-  return [todoList, setTodoList];
-};
-
-function App() {
-  const [todoList, setTodoList] = useSemiPersistentState();
+  // return [todoList, setTodoList];
 
   const addTodo = (newTodo) => {
     setTodoList([...todoList, newTodo]);
@@ -56,7 +76,11 @@ function App() {
 
       <hr />
 
-      <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
+      )}
     </>
   );
 }
