@@ -49,10 +49,10 @@ function App() {
 
   React.useEffect(() => {
     const savedTodoList = JSON.stringify(todoList);
-    if (isLoading == false) {
+    if (isLoading === false) {
       localStorage.setItem('savedTodoList', savedTodoList);
     }
-  }, [todoList]);
+  }, [todoList, isLoading]);
 
   // return [todoList, setTodoList];
 
