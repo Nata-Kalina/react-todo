@@ -1,11 +1,11 @@
 import React from 'react';
 
-const TodoListItem = (props) => {
+const TodoListItem = ({ item }) => {
   return (
     <li>
       <span>
-        <a href={props.item.url} target="_blank">
-          {props.item.title}
+        <a href={item.url} target="_blank">
+          {item.title}
         </a>
       </span>
     </li>
