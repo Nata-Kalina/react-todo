@@ -1,32 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TodoList from './TodoList';
 import AddTodoForm from './AddTodoForm';
 
 function App() {
+  const [todoList, setTodoList] = useState([]);
 
-  const [todoList, setTodoList] = React.useState(
-  //  JSON.parse(localStorage.getItem('savedTodoList')) 
-  );
+  const [isLoading, setIsLoading] = useState(true);
 
-const [isLoading, setIsLoading] = React.useState(true);
+  const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`;
 
-  React.useEffect(() => {
-    const savedTodoList = JSON.stringify(todoList);
-    if (isLoading == false) {
-      localStorage.setItem('savedTodoList', savedTodoList);
-    }
-  }, [todoList]);
-  
-  const fetchData = async () => {
-    const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}`;
-    const options = {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
-      },
-    };
-
+  const fetchData = useCallback(async () => {
     try {
+      const options = {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
+        },
+      };
+
       const response = await fetch(url, options);
 
       if (!response.ok) {
@@ -35,40 +26,92 @@ const [isLoading, setIsLoading] = React.useState(true);
       }
 
       const data = await response.json();
+      console.log(data);
+
+      const todos = data.records.map((todo) => ({
+        id: todo.id,
+        title: todo.fields.Title,
+        createdTime: todo.createdTime,
+      }));
+       console.log(todos);
+      setTodoList(todos);
+      setIsLoading(false);
+    } catch (error) {
+      console.error(error.message);
+      setIsLoading(false);
+    }
+  }, [url]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      localStorage.setItem('savedTodoList', JSON.stringify(todoList));
+    }
+  }, [isLoading, todoList]);
+
+  const addTodo = async (title) => {
+    try {
+      const airtableData = {
+        fields: {
+          Title: title,
+        },
+      };
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
+        },
+        body: JSON.stringify(airtableData),
+      };
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        const message = `Error: ${response.status}`;
+        throw new Error(message);
+      }
+
+      const responseData = await response.json();
       //console.log(data);
 
-      const todos = data.records.map((todo) => {
-        const newTodo = {
-          id: todo.id,
-          title: todo.fields.Title,
-        };
+      const newTodo = {
+        id: responseData.id,
+        title: responseData.fields.Title,
+        createdTime: responseData.createdTime,
+      };
 
-       return newTodo;
-       
-      });
-      console.log(todos);
-      setTodoList(todos);
-
-      
+      setTodoList([newTodo, ...todoList]);
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     }
   };
 
-  React.useEffect(() => {
-    fetchData().then((result) => {
-      setTodoList(result);
-      setIsLoading(false);
-    });
-  }, []);
-  
-  const addTodo = (newTodo) => {
-    setTodoList([...todoList, newTodo]);
-  };
+  const removeTodo = async (id) => {
+    try {
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
+        },
+      };
 
-  const removeTodo = (item) => {
-    const newTodo = todoList.filter((todo) => item.id !== todo.id);
-    setTodoList(newTodo);
+      const response = await fetch(`${url}/${id}`, options);
+
+      if (!response.ok) {
+        const message = `Error: ${response.status}`;
+        throw new Error(message);
+      }
+
+      const newTodoList = todoList.filter((todo) => id !== todo.id);
+      setTodoList(newTodoList);
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
   return (
