@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import TodoList from "./TodoList";
-import AddTodoForm from "./AddTodoForm";
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import TodoList from './TodoList';
+import AddTodoForm from './AddTodoForm';
 
 function App() {
   const [todoList, setTodoList] = useState([]);
@@ -12,7 +13,7 @@ function App() {
   const fetchData = async () => {
     try {
       const options = {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${process.env.REACT_APP_AIRTABLE_API_TOKEN}`,
         },
@@ -29,7 +30,11 @@ function App() {
       // console.log(data);
 
       const todos = data.records.map((todo) => {
-        return { id: todo.id, title: todo.fields.Title, comletedAt: todo.fields.completedAt };
+        return {
+          id: todo.id,
+          title: todo.fields.Title,
+          comletedAt: todo.fields.completedAt,
+        };
       });
       // console.log(todos);
       setTodoList(todos);
@@ -89,9 +94,8 @@ function App() {
   };
 
   const removeTodo = async (id) => {
-
     const url = `https://api.airtable.com/v0/${process.env.REACT_APP_AIRTABLE_BASE_ID}/${process.env.REACT_APP_TABLE_NAME}/${id}`;
-    
+
     try {
       const options = {
         method: 'DELETE',
@@ -118,22 +122,32 @@ function App() {
   };
 
   return (
-    <>
-      <header style={{ textAlign: 'center' }}>
-        <h1>Todo List</h1>
-      </header>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <header style={{ textAlign: 'center' }}>
+                <h1>Todo List</h1>
+              </header>
 
-      <hr />
-      <AddTodoForm onAddTodo={addTodo} />
+              <hr />
+              <AddTodoForm onAddTodo={addTodo} />
 
-      <hr />
+              <hr />
 
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
-      )}
-    </>
+              {isLoading ? (
+                <p>Loading...</p>
+              ) : (
+                <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
+              )}
+            </>
+          }
+        />
+        <Route path="/new" element={<h1>New Todo List</h1>} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
