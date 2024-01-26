@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import TodoList from './TodoList';
 import AddTodoForm from './AddTodoForm';
+import style from './App.module.css';
+
 
 function App() {
   const [todoList, setTodoList] = useState([]);
@@ -128,8 +130,9 @@ function App() {
           path="/"
           element={
             <>
+            <div className={style.container}>
               <header style={{ textAlign: 'center' }}>
-                <h1>Todo List</h1>
+                <h1 className={style.headingH1}>Todo List</h1>
               </header>
 
               <hr />
@@ -142,6 +145,7 @@ function App() {
               ) : (
                 <TodoList todoList={todoList} onRemoveTodo={removeTodo} />
               )}
+             </div> 
             </>
           }
         />

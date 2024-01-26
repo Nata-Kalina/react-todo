@@ -1,8 +1,10 @@
 import React from 'react';
+import style from './TodoListItem.module.css';
+
 
 const TodoListItem = ({ todo, onRemoveTodo }) => {
   return (
-    <li>
+    <li className={style.ListItem}>
       <span>
         <a href={todo.url} target="_blank">
           {todo.title}
@@ -14,6 +16,7 @@ const TodoListItem = ({ todo, onRemoveTodo }) => {
           onClick={() => {
             return onRemoveTodo(todo.id);
           }}
+          className={style.removeButton}
         >
           Remove
         </button>
